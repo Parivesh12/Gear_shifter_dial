@@ -130,7 +130,7 @@ void loop(){
     else if(newposition<oldposition){
       oldposition=newposition;
       
-      if(gear_mode==1){///Nmode////////////////////////////////////
+      if(gear_mode==1){///Nmode//////////////////////////////////
          update_mode(144,65,2,neutral); // set N
 
       }
