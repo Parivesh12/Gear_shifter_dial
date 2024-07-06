@@ -1,4 +1,7 @@
+#include "M5Dial.h"
 #include "evaimg.h"
+#include "stdlib.h"
+
 
 // Define the actual image data
 const uint16_t backgroundimg[IMAGE_WIDTH * IMAGE_HEIGHT] = {
