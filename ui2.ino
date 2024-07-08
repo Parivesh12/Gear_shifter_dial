@@ -14,6 +14,8 @@ const char* neutral = "N";
 const char* drive = "D";
 int gear_mode=8;  //set Parking bit(3) to high at begining 
 long oldposition = 0;
+volatile int n_times_changed_encd_pos_clk = 0;
+volatile int n_times_changed_encd_pos_anticlk = 0;
 
 void store_eva_image_data(uint16_t* imageData) {
     // Copy the pre-defined image data into the imageData array
@@ -111,38 +113,52 @@ void loop(){
     long newposition = M5Dial.Encoder.read();
     if(newposition>oldposition){
       oldposition=newposition;
+      
+      n_times_changed_encd_pos_clk++;
+      if(n_times_changed_encd_pos_clk>=4){
+//      oldposition=newposition;
      
-       if(gear_mode==8){ // in P mode
-        update_mode(97,65,4,reverse);  //set to R
+       if(gear_mode==8){ // currently in Parking mode
+        update_mode(97,65,4,reverse);  //set to Reverse
+        n_times_changed_encd_pos_clk=0;
         
        }
-       else if(gear_mode==4){   // in R mode
-        update_mode(144,65,2,neutral); // set N
+       else if(gear_mode==4){   // currently in Reverse mode
+        update_mode(144,65,2,neutral); // set Neutral mode
+        n_times_changed_encd_pos_clk=0;
         
        }
-       else if(gear_mode==2){ // in N mode///////////////////////////
-        update_mode(171,92,1,drive);///D mode
+       else if(gear_mode==2){ // currently in Neutral mode
+        update_mode(171,92,1,drive);// set Drive mode
+        n_times_changed_encd_pos_clk=0;
        }
+      }
+       
 //    delay(1000);
 
       
     }
     else if(newposition<oldposition){
       oldposition=newposition;
-      
-      if(gear_mode==1){///Nmode//////////////////////////////////
-         update_mode(144,65,2,neutral); // set N
+      n_times_changed_encd_pos_anticlk++;
+      if(n_times_changed_encd_pos_anticlk>=4){
+      if(gear_mode==1){ // currently in Drive mode
+         update_mode(144,65,2,neutral); // set Neutral mode
+         n_times_changed_encd_pos_anticlk=0;
 
       }
-      else if(gear_mode==2){
-        update_mode(97,65,4,reverse);  //set to R
+      else if(gear_mode==2){ // currently in Neutral mode
+        update_mode(97,65,4,reverse);  //set to Reverse mode
+        n_times_changed_encd_pos_anticlk=0;
       }
-      else if(gear_mode==4){
-           update_mode(66,92,8,park); //set P
+      else if(gear_mode==4){ // currently in Reverse mode
+           update_mode(66,92,8,park); //set Parking mode
+           n_times_changed_encd_pos_anticlk=0;
       }
 //      delay(1000); 
     }
   
-  
 
+
+}
 }
