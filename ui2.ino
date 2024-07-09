@@ -23,12 +23,15 @@ volatile bool timer_flag = false;
 
 int time_interval_durring_switching_mode=0;
 const int minimum_value_of_time_bw_encd_pos=4; // in units sof 50 milliseconds
-volatile int time_interval_bw_encoding_position = minimum_value_of_time_bw_encd_pos;
+volatile int time_interval_bw_encoding_position_clk = minimum_value_of_time_bw_encd_pos;
+volatile int time_interval_bw_encoding_position_anticlk = minimum_value_of_time_bw_encd_pos;
+volatile int time_interval_bw_encoding_position_clk_atend=0;
+volatile int time_interval_bw_encoding_position_anticlk_atend=0;
 
 const int time_interval_bw_modes = 6;  // in units of 50 milliseconds
 volatile int number_of_50_milliseconds_clk = time_interval_bw_modes;
 volatile int number_of_50_milliseconds_anticlk = time_interval_bw_modes;
-volatile int time_interval_bw_encoding_position_atend;
+
 
 // Interuppt service routine for timer
 void IRAM_ATTR onTimer(){
@@ -68,7 +71,7 @@ void update_mode(int x_coordinate_of_cursor, int y_coordinate_of_cursor, int Gea
         number_of_50_milliseconds_clk=0;
         n_times_changed_encd_pos_anticlk=0;
         number_of_50_milliseconds_anticlk=0;
-//        time_interval_bw_encoding_position=0;
+//        time_interval_bw_encoding_position_clk=0;
 }
 
 
@@ -126,20 +129,21 @@ void loop(){
       timer_flag = false;
       number_of_50_milliseconds_clk++;
       number_of_50_milliseconds_anticlk++;
-      time_interval_bw_encoding_position++;
+      time_interval_bw_encoding_position_clk++;
+      time_interval_bw_encoding_position_anticlk++;
     }
 
 
     if(newposition>oldposition){
       oldposition=newposition;
-      time_interval_bw_encoding_position_atend = time_interval_bw_encoding_position;
-      time_interval_bw_encoding_position=0;
-//      n_times_changed_encd_pos_anticlk=0;
+      time_interval_bw_encoding_position_clk_atend = time_interval_bw_encoding_position_clk;
+      time_interval_bw_encoding_position_clk=0;
+      n_times_changed_encd_pos_anticlk=0;
       n_times_changed_encd_pos_clk++;
 //      if(n_times_changed_encd_pos_clk>=4){
 //      oldposition=newposition;
      
-   if((number_of_50_milliseconds_clk>=time_interval_bw_modes)&&(n_times_changed_encd_pos_clk>=4)&&(time_interval_bw_encoding_position_atend >= minimum_value_of_time_bw_encd_pos)){
+   if((number_of_50_milliseconds_clk>=time_interval_bw_modes)&&(n_times_changed_encd_pos_clk>=4)/*&&(time_interval_bw_encoding_position_clk_atend >= minimum_value_of_time_bw_encd_pos)*/){
        if(gear_mode==8){ // currently in Parking mode
         update_mode(97,65,4,reverse);  //set to Reverse
 //        n_times_changed_encd_pos_clk=0;
@@ -165,12 +169,12 @@ void loop(){
     }
     else if(newposition<oldposition){
       oldposition=newposition;
-      time_interval_bw_encoding_position_atend = time_interval_bw_encoding_position;
-      time_interval_bw_encoding_position=0;      
-//      n_times_changed_encd_pos_clk=0;
+      time_interval_bw_encoding_position_anticlk_atend = time_interval_bw_encoding_position_anticlk;
+      time_interval_bw_encoding_position_anticlk=0;      
+      n_times_changed_encd_pos_clk=0;
       n_times_changed_encd_pos_anticlk++;
 
-   if((number_of_50_milliseconds_anticlk>=time_interval_bw_modes)&&(n_times_changed_encd_pos_anticlk>=4)&&(time_interval_bw_encoding_position_atend >= minimum_value_of_time_bw_encd_pos)){
+   if((number_of_50_milliseconds_anticlk>=time_interval_bw_modes)&&(n_times_changed_encd_pos_anticlk>=4)/*&&(time_interval_bw_encoding_position_anticlk_atend >= minimum_value_of_time_bw_encd_pos)*/){
       if(gear_mode==1){ // currently in Drive mode
          update_mode(144,65,2,neutral); // set Neutral mode
 //         n_times_changed_encd_pos_anticlk=0;
