@@ -14,6 +14,11 @@ const char* neutral = "N";
 const char* drive = "D";
 int gear_mode=8;  //set Parking bit(3) to high at begining 
 long oldposition = 0;
+volatile int diff_encoder = 0;       // difference of direction
+volatile int initial_direction=-1;   //+1 clockwise direction
+volatile int final_direction=0;       //-1 anticlockwise direction
+
+
 volatile int n_times_changed_encd_pos_clk = 4;
 volatile int n_times_changed_encd_pos_anticlk = 4;
 
@@ -108,12 +113,9 @@ timer = timerBegin(0, 80, true);  // Timer 0, prescaler 80, count up
     M5Dial.Display.println("D");
     M5Dial.Display.fillCircle(66,92,radius_of_cursor);//P
 }
-
 void clearText() {
     M5Dial.Display.fillCircle(120,120,40, 0x2bd2);  // Adjust rectangle size and position as needed
 }
-
-
 void removec(){
   
     M5Dial.Display.fillCircle(66,92,radius_of_cursor);//P
@@ -121,6 +123,9 @@ void removec(){
     M5Dial.Display.fillCircle(97,65,radius_of_cursor);//R
     M5Dial.Display.fillCircle(144,65,radius_of_cursor);//N
 }
+
+
+
 void loop(){
   M5Dial.update();
     long newposition = M5Dial.Encoder.read();
@@ -135,6 +140,15 @@ void loop(){
 
     if(newposition>oldposition){
       oldposition=newposition;
+      final_direction=+1;
+      diff_encoder = abs(final_direction-initial_direction);
+      if(diff_encoder==2){
+        n_times_changed_encd_pos_clk=4;
+      }
+//      else{
+//        n_times_changed_encd_pos_clk=0;
+//      }
+      initial_direction = final_direction;
       time_interval_bw_encoding_position_clk_atend = time_interval_bw_encoding_position_clk;
 //      Serial.println("clk");
 //      Serial.println(time_interval_bw_encoding_position_clk_atend);
@@ -198,15 +212,22 @@ void loop(){
     }
     else if(newposition<oldposition){
       oldposition=newposition;
+      final_direction=-1;
+      diff_encoder = abs(final_direction-initial_direction);
+      if(diff_encoder==2){
+        n_times_changed_encd_pos_anticlk=4;
+      }
+//      else{
+//        n_times_changed_encd_pos_anticlk=0;
+//      }
+      initial_direction = final_direction;
       time_interval_bw_encoding_position_anticlk_atend = time_interval_bw_encoding_position_anticlk;
-//      Serial.println("anti");
-//      Serial.println(time_interval_bw_encoding_position_anticlk_atend);
-//      Serial.println("anti");
+
       time_interval_bw_encoding_position_anticlk=0;      
       n_times_changed_encd_pos_clk=0;
       n_times_changed_encd_pos_anticlk++;
           Serial.print("anti");
-          Serial.println();
+          Serial.println(); 
     Serial.print(number_of_50_milliseconds_anticlk);
     Serial.println();
     Serial.print(n_times_changed_encd_pos_anticlk);
