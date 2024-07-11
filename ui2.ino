@@ -57,11 +57,11 @@ void IRAM_ATTR onTimer(){
 }
 
 
-void clearText(int mode_color) {
-    M5Dial.Display.fillCircle(120,120,50, mode_color);  // Adjust rectangle size and position as needed
+void Display_background(int mode_color) {
+    M5Dial.Display.fillCircle(120,120,50, mode_color);  
     for(int i=1;i<7;i++){
     
-      M5Dial.Display.drawCircle(120,120,112+i, mode_color);  // Adjust rectangle size and position as needed
+      M5Dial.Display.drawCircle(120,120,112+i, mode_color);  
 }
 }
 
@@ -77,7 +77,7 @@ void removec(){
 
 void update_mode(int x_coordinate_of_cursor, int y_coordinate_of_cursor, int Gear_mode, const char* Print_mode, int mode_color){
 
-        clearText(mode_color);
+        Display_background(mode_color);
         n_times_changed_encd_pos_clk=0;
         number_of_50_milliseconds_clk=0;
         n_times_changed_encd_pos_anticlk=0;
@@ -124,8 +124,8 @@ void setup() {
     M5Dial.Display.fillScreen(TFT_BLACK); 
 
 
-clearText(0x2bd2);
-M5Dial.Display.setTextFont(&fonts::Orbitron_Light_32);
+    Display_background(0x2bd2);
+    M5Dial.Display.setTextFont(&fonts::Orbitron_Light_32);
     M5Dial.Display.setCursor(93,80);
     M5Dial.Display.setTextSize(2);
     M5Dial.Display.setTextColor(WHITE);
@@ -164,9 +164,11 @@ void loop(){
       n_times_changed_encd_pos_anticlk=0;
       n_times_changed_encd_pos_clk++;
 
-   if((number_of_50_milliseconds_clk>=time_interval_bw_modes)&&
-   (n_times_changed_encd_pos_clk>=min_encd)&&
-   (time_interval_bw_encoding_position_clk_atend >= minimum_value_of_time_bw_encd_pos)){
+      
+
+    if((number_of_50_milliseconds_clk>=time_interval_bw_modes)&&
+       (n_times_changed_encd_pos_clk>=min_encd)&&
+       (time_interval_bw_encoding_position_clk_atend >= minimum_value_of_time_bw_encd_pos)){
        if(gear_mode==8){ // currently in Parking mode
         
         update_mode(97,65,4,reverse, reverse_mode_color);  //set to Reverse
@@ -205,8 +207,9 @@ void loop(){
       n_times_changed_encd_pos_anticlk++;
         
    if((number_of_50_milliseconds_anticlk>=time_interval_bw_modes)&&
-   (n_times_changed_encd_pos_anticlk>=min_encd)&&
-   (time_interval_bw_encoding_position_anticlk_atend >= minimum_value_of_time_bw_encd_pos)){/////////////
+      (n_times_changed_encd_pos_anticlk>=min_encd)&&
+      (time_interval_bw_encoding_position_anticlk_atend >= minimum_value_of_time_bw_encd_pos)){/////////////
+        
       if(gear_mode==1){ // currently in Drive mode
         
          update_mode(144,65,2,neutral, neutral_mode_color); // set Neutral mode
@@ -215,12 +218,12 @@ void loop(){
       }
       else if(gear_mode==2){ // currently in Neutral mode
         
-        update_mode(97,65,4,reverse, reverse_mode_color);  //set to Reverse mode
+         update_mode(97,65,4,reverse, reverse_mode_color);  //set to Reverse mode
 
       }
       else if(gear_mode==4){ // currently in Reverse mode
         
-           update_mode(66,92,8,park, park_mode_color); //set Parking mode
+         update_mode(66,92,8,park, park_mode_color); //set Parking mode
 
       }
 
